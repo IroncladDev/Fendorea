@@ -8,7 +8,7 @@ import { Plus, Bookmark } from 'react-feather'
 import { Get } from '../scripts/fetch';
 import Image from 'next/image'
 
-export default function Nav({ loggedIn }) {
+export default function Nav({ loggedIn }: { loggedIn: boolean }) {
   const { 
     searchQuery, 
     setSearchQuery, 
@@ -46,7 +46,7 @@ export default function Nav({ loggedIn }) {
       <Input
         placeholder="Search"  
         value={searchQuery}
-        onChange={e => setSearchQuery(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
       />
       <select 
         className={ui.button} 

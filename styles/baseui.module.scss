@@ -1,0 +1,85 @@
+.userElement {
+  display: flex;
+  background: var(--bg-higher);
+  padding: 5px;
+  padding-right: 10px;
+  border-radius: 20px;
+  gap: 5px;
+  align-items: center;
+  transition: 0.25s;
+  &:hover {
+    background: var(--bg-higher) !important;
+  }
+  & > span > img {
+    border-radius: 50%;
+  }
+  & > .userElementUsername {
+    font-size: 12.5px;
+    font-weight: 400;
+  }
+}
+
+.floatButton {
+  transition: 0.25s;
+  border-radius: 20px;
+  background: var(--bg-higher);
+  padding: 5px 10px;
+  font-size: 12.5px;
+  color: var(--fg-default);
+  font-weight: 400;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  &.floatButtonHoverable:hover {
+    cursor: pointer;
+    background: var(--bg-highest) !important;
+  }
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0, 0, 0, 0.5);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translatex(-50%);
+  width: 90%;
+  max-width: 600px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10vh 0;
+}
+
+.contentItem {
+  background: var(--bg-default);
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+.dataTag {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--fg-dimmer);
+  background: var(--bg-higher);
+  border-radius: 20px;
+  padding: 5px 10px;
+  transition: 0.25s;
+  margin: 2.5px;
+  font-weight: 500;
+  user-select: none;
+  cursor: pointer;
+  &.dataTagSelected {
+    background: var(--accent-default);
+    color: var(--fg-default);
+  }
+}

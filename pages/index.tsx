@@ -11,7 +11,7 @@ import PromptMenu from '../components/prompt-menu'
 import { Flex, FlexGrow, Button, Input, TextArea, FormLabel } from '../components/ui';
 
 // Hooks 'n stuff
-import useStore from '../scripts/client/store'
+import useStore, { StoreType } from '../scripts/client/store'
 import { useEffect, useState } from 'react'
 
 // Other thonkers
@@ -19,13 +19,39 @@ import { Get } from '../scripts/fetch'
 import { authenticate } from '../scripts/client/actions';
 import Swal, { Positive, Negative } from '../scripts/client/modal';
 
+interface singleIdType {
+  id: number | string;
+}
+
+interface imageInterface {
+  comment_count: number;
+  created_at: string;
+  id: number;
+  like_count: number;
+  prompt: string;
+  url: string;
+  user_image: string;
+  username: string;
+  currentUserLikes: singleIdType[];
+  currentUserBookmark: singleIdType[];
+}
+
+interface commentInterface {
+  id: number;
+  created_at: string;
+  image_id: number;
+  username: string;
+  body: string;
+  user_image: string;
+}
+
 // CSS
 import styles from '../styles/index.module.scss';
 
 // Server Side
 import supabase, { FindOne } from '../scripts/server/db';
 
-export default function Home({ loggedIn, currentUser:replitUser }): NextPage {
+export default function Home({ loggedIn, currentUser:replitUser }) {
   const {
     images,
     imageSpotlightId,
@@ -35,13 +61,32 @@ export default function Home({ loggedIn, currentUser:replitUser }): NextPage {
     promptMenu,
     searchOrder,
     searchQuery,
-    setImages
+    setImages,
+    spotlightOpen
   } = useStore(s => s);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if(window.location !== window.parent.location){
+      Swal.fire({
+        allowEnterKey: false,
+        allowOutsideClick: false,
+        title: "Hold Up there, buddy!",
+        text: "Open Fendorea in a new tab for the best experience and functionality.",
+        showCancelButton: false,
+        showConfirmButton: true,
+        confirmButtonText: "Open in Fullscreen",
+        preConfirm: async () => {
+          window.open("https://fendorea.ironcladdev.repl.co/")
+        }
+      });
+    }
     setCurrentUser(replitUser);
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = spotlightOpen ? 'hidden' : ""
+  }, [spotlightOpen])
 
   const loadMore = () => {
     if(loggedIn){
@@ -68,7 +113,7 @@ export default function Home({ loggedIn, currentUser:replitUser }): NextPage {
       <Nav loggedIn={loggedIn}/>
       
       <div className={styles.imageGrid}>
-        {images.map(img => <ImageComponent key={`image-component-` + img.id} data={img}/>)}
+        {images.map((img:imageInterface) => <ImageComponent key={`image-component-` + img.id} data={img}/>)}
       </div>
       <Flex style={{paddingBottom: '10vh'}}>
         <FlexGrow/>
@@ -100,16 +145,16 @@ export async function getServerSideProps({ req }){
     return {
       props: {
         loggedIn: !!req.headers["x-replit-user-name"],
-        currentUser: !!req.headers["x-replit-user-name"] ? {
-          username: req.headers["x-replit-user-name"],
-          image: req.headers["x-replit-user-profile-image"],
-          id: req.headers["x-replit-user-id"],
-          bio: req.headers["x-replit-user-bio"],
-          roles: req.headers["x-replit-user-roles"],
-          teams: req.headers["x-replit-user-teams"],
-          url: req.headers["x-replit-user-url"],
-          admin: !!admin.data
-        } : false
+        currentUser: {
+          username: req.headers["x-replit-user-name"] || "",
+          image: req.headers["x-replit-user-profile-image"] || "",
+          id: req.headers["x-replit-user-id"] || "",
+          bio: req.headers["x-replit-user-bio"] || "",
+          roles: req.headers["x-replit-user-roles"] || "",
+          teams: req.headers["x-replit-user-teams"] || "",
+          url: req.headers["x-replit-user-url"] || "",
+          admin: admin.data.length > 0
+        }
       }
     }
   }

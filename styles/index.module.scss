@@ -135,7 +135,7 @@
     }
 
     &:hover::after {
-      content: attr(dataprompt);
+      content: attr(id);
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(5px);
       position: absolute;
@@ -157,93 +157,30 @@
   }
 }
 
-.imageSpotlight {
-  & > .imageSpotlightBackdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(0, 0, 0, 0.5);
-  }
-  & > .imageSpotlightModal {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translatex(-50%);
-    width: 90%;
-    max-width: 700px;
-    height: 100%;
-    overflow-y: auto;
-    background: var(--bg-higher);
-    outline-bottom: solid transparent 5vh;
-
-    & > .spotlightImage {
-      margin: 0 20px;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 10px;
-      width: calc(100% - 40px);
-    }
-    
-    & > .headerStats {
-      display: flex;
-      padding: 20px 20px 10px 20px;
-      & > a > .userStats {
-        display: flex;
-        gap: 5px;
-        border-radius: 20px;
-        padding: 5px;
-        padding-right: 10px;
-        background: var(--bg-highest);
-        align-items: center;
-        & > .userUsername {
-          font-size: 12.5px;
-          font-weight: 500;
-        }
-        & > span > img {
-          border-radius: 50%;
-        }
-      }
-      & > .socialStats {
-        & > div {
-          transition: 0.25s;
-          border-radius: 20px;
-          background: var(--bg-highest);
-          padding: 5px 10px;
-          font-size: 12.5px;
-          color: var(--fg-default);
-          font-weight: 400;
-          display: flex;
-          gap: 5px;
-          align-items: center;
-          &.likeStatsCount {
-            &:hover {
-              cursor: pointer;
-              filter: brightness(110%);
-            }
-          }
-        }
-      }
-    }
-  }
+.spotlightImage {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 .promptText {
   padding: 10px 20px;
+  border-radius: 10px;
   font-size: 20px;
   font-weight: 400;
-  color: var(--fg-default);
+  text-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+  color: var(--fg-dimmer);
+  background: rgba(0, 0, 0, 0.5);
   text-align: center;
+  margin-bottom: 10px;
+  backdrop-filter: blur(10px);
 }
 
 .commentBound {
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
+  padding: 0 20px;
   max-width: 500px;
-  width: 100%;
-  padding: 20px;
+  margin: 0 auto;
 }
 
 .commentForm {
@@ -270,23 +207,8 @@
     }
   }
   & > .comment > .commentHead {
+    gap: 10px;
     display: flex;
-    & > a > .commentUserBadge {
-      padding: 5px 10px 5px 5px;
-      border-radius: 20px;
-      background: var(--bg-highest);
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      & > span > img {
-        border-radius: 50%;
-      }
-      & > div {
-        font-size: 12.5px;
-        font-weight: 500;
-        color: var(--fg-default)
-      }
-    }
   }
 }
 
@@ -307,78 +229,57 @@
   }
 }
 
-.bookmarks {
-  .bookmarkOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(0, 0, 0, 0.5);
-  }
-  .bookmarkBody {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translatex(-50%);
-    background: var(--bg-default);
-    width: 80%;
-    height: 100%;
-    overflow-y: auto;
-    padding: 20px;
-    & > .bookmarkGrid {
-      margin-top: 20px;
-      gap: 10px;
-      
-      justify-content: center;
-      justify-items: center;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      & > div {
-        max-width: 200px;
-        position: relative;
-        &:hover {
-          cursor: pointer;
-        }
+.bookmarkGrid {
+  gap: 10px;
+  
+  justify-content: center;
+  justify-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  & > div {
+    max-width: 200px;
+    position: relative;
+    &:hover {
+      cursor: pointer;
+    }
+
+    &::after {
+      transition: 0.25s;
+      content: "";
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(0px);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 5px);
+      border-radius: 10px;
+      z-index: 10;
+    }
+
+    &:hover::after {
+      content: attr(id);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(100% - 20px);
+      height: calc(100% - 25px);
+      border-radius: 10px;
+      z-index: 10;
+      font-size: 12.5px;
+      font-weight: 500;
+      text-align: center;
+      color: var(--fg-default);
+      text-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+      padding: 10px;
+      overflow: hidden;
+    }
     
-        &::after {
-          transition: 0.25s;
-          content: "";
-          background: rgba(0, 0, 0, 0);
-          backdrop-filter: blur(0px);
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: calc(100% - 5px);
-          border-radius: 10px;
-          z-index: 10;
-        }
-    
-        &:hover::after {
-          content: attr(dataprompt);
-          background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(5px);
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: calc(100% - 40px);
-          height: calc(100% - 45px);
-          border-radius: 10px;
-          z-index: 10;
-          font-size: 15px;
-          font-weight: 500;
-          text-align: center;
-          color: var(--fg-default);
-          text-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
-          padding: 20px;
-        }
-        
-        & > img {
-          width: 100%;
-          border-radius: 10px;
-        }
-      }
+    & > img {
+      width: 100%;
+      border-radius: 10px;
     }
   }
 }

@@ -10,7 +10,7 @@ import gic from 'get-image-colors'
 
 const app = nc();
 
-app.use(limiter(process.env.LIMIT_MS_GEN, process.env.LIMIT_COUNT_GEN));
+app.use(limiter(60000, 3));
 
 app.post(async (req: NextApiRequest, res: NextApiResponse) => {
   await auth(req, res, async (user) => {
@@ -24,7 +24,7 @@ app.post(async (req: NextApiRequest, res: NextApiResponse) => {
         data: null
       })
     }else{
-      let b64_content = await b64(`https://dalle-mini.amasad.repl.co/gen/${encodeURIComponent(prompt)}`);
+      let b64_content: string = await b64(`https://dalle-mini.amasad.repl.co/gen/${encodeURIComponent(prompt)}`);
       if(b64_content.includes("data:text/html;")){
         res.status(500).json({
           success: false,
@@ -34,7 +34,7 @@ app.post(async (req: NextApiRequest, res: NextApiResponse) => {
       }else{
         let colors = await gic(`https://dalle-mini.amasad.repl.co/gen/${encodeURIComponent(prompt)}`);
         let allColors = [...new Set(colors.map(c => c.hex()))];
-        if(allColors.length <= 3 && allColors.every(c => c.startsWith("#0"))) {
+        if(allColors.length <= 3 && allColors.every((c:string) => c.startsWith("#0"))) {
           res.status(401).json({
             message: "Your image seemed to have been marked as NSFW by the generation api endpoint.  Please try again as sometimes false positives are generated.",
             success: false,

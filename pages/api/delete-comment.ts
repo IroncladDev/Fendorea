@@ -16,7 +16,6 @@ app.post(async (req: NextApiRequest, res: NextApiResponse) => {
       if(findComment.username === user.username || user.admin){
         await DeleteOne("Comments", { id: comment_id })
         let currentImage = await FindOne("Images", { id: findComment.image_id });
-        console.log(currentImage)
         let updateImage = await UpdateOne("Images", { id: findComment.image_id }, { comment_count: Number(currentImage.comment_count) - 1 })
         res.json({
           success: true

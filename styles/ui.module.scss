@@ -56,7 +56,6 @@
   }
 
   &:focus{
-    background: var(--bg-default);
     box-shadow: 0 0 0 1px var(--accent-dimmest);
   }
 }
@@ -66,4 +65,5 @@
   font-weight: 400;
   color: var(--fg-default);
   font-size: 12.5px;
+  margin-bottom: 5px;
 }

@@ -1,19 +1,38 @@
 import styles from '../styles/index.module.scss'
 import { FlexGrow } from './ui';
 import Image from 'next/image';
-import Post from '../scripts/client/handle'
+import Post, { DataResponse } from '../scripts/client/handle'
 import { Get } from '../scripts/fetch'
 import {
-  Heart, MessageSquare, Bookmark, Trash
+  Heart, MessageSquare, Bookmark, Trash, UserX
 } from 'react-feather'
 import useStore from '../scripts/client/store'
 import { useState } from 'react'
 import Swal, { Positive } from '../scripts/client/modal'
 
-export default function ImageComponent({ data }) {
+import { UserElement, FloatButton } from './base-components'
+
+interface singleIdType {
+  id: number | string;
+}
+
+export interface imageInterface {
+  comment_count: number;
+  created_at: string;
+  id: number;
+  like_count: number;
+  prompt: string;
+  url: string;
+  user_image: string;
+  username: string;
+  currentUserLikes: singleIdType[];
+  currentUserBookmark: singleIdType[];
+}
+
+export default function ImageComponent({ data }: { data: imageInterface; }) {
   const store = useStore(s => s);
 
-  const reloadImages = async () => {
+  const reloadImages = async (): Promise<void> => {
     let imgs = await Get(`/api/images?order=${store.searchOrder}&search=${store.searchQuery}`);
     store.setImages(imgs);
   }
@@ -31,15 +50,34 @@ export default function ImageComponent({ data }) {
     currentUserBookmark
   } = data;
 
-  const [currentLikes, setCurrentLikes] = useState(data?.like_count)
-  const [currentLiked, setCurrentLiked] = useState(data?.currentUserLikes?.length > 0)
-  const [currentBookmark, setCurrentBookmark] = useState(data?.currentUserBookmark?.length > 0)
+  const [currentLikes, setCurrentLikes] = useState(data.like_count)
+  const [currentLiked, setCurrentLiked] = useState(data.currentUserLikes.length > 0)
+  const [currentBookmark, setCurrentBookmark] = useState(data.currentUserBookmark.length > 0)
 
-  const applyLike = () => {
+  const banUser = (username: string): void => {
+    Swal.fire({
+      title: "Ban " + username + "?",
+      text: "Are you sure you would like to ban this user?  If so, type a reason for the ban.",
+      showCancelButton: true,
+      input: "text",
+      inputPlaceholder: "reason",
+      preConfirm: async (reason) => {
+        let res = await Post("/api/ban-user", {
+          username,
+          reason
+        });
+        if(res){
+          Positive.fire("User Banned")
+        }
+      }
+    })
+  }
+
+  const applyLike = (): void => {
     Post("/api/like", {
       image_id: id
-    }).then(res => {
-      if(res){
+    }).then((res: DataResponse) => {
+      if(typeof res === 'object'){
         if(res.remove) {
           setCurrentLikes(currentLikes - 1)
         }else {
@@ -50,15 +88,15 @@ export default function ImageComponent({ data }) {
     })
   }
 
-  const applyBookmark = () => {
+  const applyBookmark = (): void => {
     Post("/api/bookmark", {
       image_id: id
-    }).then(res => {
+    }).then((res: DataResponse) => {
       if(res) setCurrentBookmark(!currentBookmark)
     })
   }
 
-  const deleteImage = () => {
+  const deleteImage = (): void => {
     Swal.fire({
       title: "Are you sure?",
       text: "Are you sure you would like to delete this image? This action cannot be undone.",
@@ -66,7 +104,7 @@ export default function ImageComponent({ data }) {
       preConfirm: () => {
         Post("/api/delete-image", {
           image_id: id
-        }).then(res => {
+        }).then((res: DataResponse) => {
           if(res){
             reloadImages();
             Positive.fire("Deleted")
@@ -78,49 +116,51 @@ export default function ImageComponent({ data }) {
   
   return (<div className={styles.imageComponent}>
     <div className={styles.imageHeaderStats}>
-      <a href={"https://replit.com/@" + username} target="_blank" rel="noreferrer">
-        <div className={styles.userStats}>
-          <Image src={`/api/proxy?url=`+user_image} width="20" height="20"/>
-          <div className={styles.userUsername}>{username}</div>
-        </div>
-      </a>
+      <UserElement username={username} image={user_image} />
 
       <FlexGrow/>
 
       <div className={styles.socialStats}>
-        <div className={styles.likeStatsCount} onClick={applyLike}>
+        <FloatButton onClick={applyLike}>
           <Heart 
             color={currentLiked ? "var(--fg-default)" : "var(--fg-dimmer)"}
             size={15}
             fill={currentLiked ? "var(--fg-default)" : "none"}
           />
           <span>{currentLikes}</span>
-        </div>
-        <div className={styles.likeStatsCount} onClick={applyBookmark}>
+        </FloatButton>
+        
+        <FloatButton onClick={applyBookmark}>
           <Bookmark
             color={currentBookmark ? "var(--fg-default)" : "var(--fg-dimmer)"}
             size={15}
             fill={currentBookmark ? "var(--fg-default)" : "none"}
           />
-        </div>
-        {(store.currentUser.username === username || store.currentUser.admin) && <div className={styles.likeStatsCount} onClick={deleteImage}>
+        </FloatButton>
+        {(store.currentUser.admin) && <FloatButton onClick={() => banUser(username)}>
+          <UserX
+            color={"var(--negative-default)"}
+            size={15}
+          />
+        </FloatButton>}
+        {(store.currentUser.username === username || store.currentUser.admin) && <FloatButton onClick={deleteImage}>
           <Trash
             color={"var(--negative-default)"}
             size={15}
           />
-        </div>}
-        <div className={styles.commentStatsCount}>
+        </FloatButton>}
+        <FloatButton>
           <MessageSquare
             color="var(--fg-default)"
             size={15}
           />
           <span>{comment_count}</span>
-        </div>
+        </FloatButton>
       </div>
       
     </div>
 
-    <div className={styles.imageDisplayParent} dataprompt={prompt} onClick={() => store.setImageSpotlightId(id)}>
+    <div className={styles.imageDisplayParent} id={prompt} onClick={() => store.setImageSpotlightId(id)}>
       <img 
         src={url} 
         alt={prompt} 

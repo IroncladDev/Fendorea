@@ -1,7 +1,18 @@
 import { Request, Response } from 'express';
 import supabase, { FindOne } from './db'
 
-const auth = async (req: Request, res: Response, callback: (userData?: object) => unknown): unknown => {
+interface currentUserType {
+  username: string;
+  image: string;
+  id: string;
+  bio: string;
+  roles: string;
+  teams: string;
+  url: string;
+  admin: boolean;
+}
+
+const auth = async (req: Request, res: Response, callback: (userData: currentUserType) => void): Promise<any> => {
   if(req.headers['x-replit-user-name']){
     let admin = await supabase.from("Admins").select("*").eq("username", req.headers['x-replit-user-name']);
     let isBanned = await FindOne("Banned", {
@@ -21,12 +32,12 @@ const auth = async (req: Request, res: Response, callback: (userData?: object) =
         roles: req.headers["x-replit-user-roles"],
         teams: req.headers["x-replit-user-teams"],
         url: req.headers["x-replit-user-url"],
-        admin: !!admin.data
+        admin: admin.data.length > 0
       });
     }
   }else {
     return res.status(401).json({
-      message: "Unauthorized Attempt, please log in.",
+      message: "Log in first to perform this action.",
       success: false
     })
   }

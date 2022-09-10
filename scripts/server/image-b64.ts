@@ -1,5 +1,5 @@
 import request from 'request'
-export default function getB64(url: string) {
+export default function getB64(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     request(
       {

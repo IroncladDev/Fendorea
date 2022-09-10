@@ -6,28 +6,60 @@ import {
   Heart,
   Trash, X, Bookmark
 } from 'react-feather'
-import useStore from '../scripts/client/store'
+import useStore, { StoreType } from '../scripts/client/store'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-export default function Bookmarks({  }){
-  const { setImageSpotlightId, hideBookmarkMenu } = useStore(s => s);
+
+import {
+  UserElement,
+  FloatButton,
+  Backdrop,
+  Overlay,
+  ContentItem,
+  TagSingle,
+  TagMulti
+} from './base-components';
+
+interface imageInterface {
+  comment_count: number;
+  created_at: string;
+  id: number;
+  like_count: number;
+  prompt: string;
+  url: string;
+  user_image: string;
+  username: string;
+}
+
+interface bookmarkInterface {
+  id: number;
+  username: string;
+  image_id: imageInterface;
+}
+
+export default function Bookmarks(){
+  const { setImageSpotlightId, hideBookmarkMenu } = useStore((s) => s);
   const [bookmarks, setBookmarks] = useState([])
   useEffect(() => {
     Get("/api/bookmarks").then(data => {
-      setBookmarks(data.map(x => x.image_id))
+      setBookmarks(data.map((x:bookmarkInterface) => x.image_id))
     });
   }, [])
-  return (<div className={styles.bookmarks}>
-    <div className={styles.bookmarkOverlay} onClick={hideBookmarkMenu}></div>
-    <div className={styles.bookmarkBody}>
+  return (<div>
+    <Backdrop onClick={hideBookmarkMenu}/>
+    <Overlay>
       <Flex>
-        <h2>Saved Images</h2>
+        <FloatButton>Saved Images</FloatButton>
         <FlexGrow/>
-        <Button onClick={hideBookmarkMenu}>Close</Button>
+        <FloatButton onClick={hideBookmarkMenu}>
+          <X size={20} color="var(--fg-default)"/>
+        </FloatButton>
       </Flex>
-      <div className={styles.bookmarkGrid}>
-        {bookmarks.map(x => <div key={"img-saved-" + x.id} dataprompt={x.prompt} onClick={() => {setImageSpotlightId(x.id);hideBookmarkMenu();}}><img src={x.url} alt={x.prompt}/></div>)}
-      </div>
-    </div>
+      <ContentItem>
+        <div className={styles.bookmarkGrid}>
+          {bookmarks.map((x:imageInterface) => <div key={"img-saved-" + x.id} id={x.prompt} onClick={() => {setImageSpotlightId(x.id);hideBookmarkMenu();}}><img src={x.url} alt={x.prompt}/></div>)}
+        </div>
+      </ContentItem>
+    </Overlay>
   </div>)
 }

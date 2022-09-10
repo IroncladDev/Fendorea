@@ -1,6 +1,6 @@
 import englishWords from "an-array-of-english-words";
 
-const censors = (process.env.CENSORS).split`,`.map(x => x.trim());
+const censors: string[] = (process.env.CENSORS).split(`,`).map(x => x.trim());
 const words = englishWords.concat(censors);
 
 // Determine the format of a given string (camelCase, snake_case, etc)
@@ -8,7 +8,7 @@ const stringFormat = (s) => {
   if (typeof s !== "string") return "none";
   let format = "";
   if (s.indexOf(" ") > -1) {
-    if (s.split` `.every(x => x.length < 3)) {
+    if (s.split(` `).every(x => x.length < 3)) {
       format = "split"
     } else if (!s.match(/[^a-zA-Z0-9\s]/)) {
       format = "words";
@@ -79,7 +79,7 @@ const extractWords = (s, format, allWords) => {
     let words = [];
     switch (format) {
       case "words":
-        words = s.split` `;
+        words = s.split(` `);
         break;
       case "sentence":
         words = s.split(/[\s.,;:?!]+/);
@@ -90,7 +90,7 @@ const extractWords = (s, format, allWords) => {
         words = s.split(/[-_]/g);
         break;
       case "split":
-        words = [s.split` `.join``];
+        words = [s.split(` `).join(``)];
         break;
       case "camel":
         words = s.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g);
@@ -120,7 +120,7 @@ const extractWords = (s, format, allWords) => {
 
 // Replace certain characters with glyphs to be able to catch words like "sh1t" or "@$$"
 const renderWord = (word) => {
-  let w = String(word).split``;
+  let w = String(word).split(``);
   for (let letter = 0; letter < w.length; letter++) {
     let l = w[letter];
     if (/[^a-zA-Z]/.test(l)) {
@@ -129,11 +129,16 @@ const renderWord = (word) => {
       if (i > -1) w[letter] = Object.keys(glyphs)[i];
     }
   }
-  return w.join``;
+  return w.join(``);
 };
 
+interface censorOutput {
+  contains: boolean;
+  words: string[];
+}
+
 // Main Function
-const getCensorOutput = (text, allWords, bad) => {
+const getCensorOutput = (text, allWords, bad): censorOutput => {
   let out = [...new Set(
     [].concat(
       extractWords(text, stringFormat(text), allWords),
@@ -148,12 +153,12 @@ const getCensorOutput = (text, allWords, bad) => {
 }
 
 // All done!
-const Scan = (__w__) => {
-  if (typeof __w__ === "string" && !Array.isArray(__w__)) {
+const Scan = (__w__): censorOutput => {
+//  if (typeof __w__ === "string" && !Array.isArray(__w__)) {
     return getCensorOutput(__w__, words, censors);
-  } else if (typeof __w__ === "object" && Array.isArray(__w__)) {
-    return __w__.map(x => getCensorOutput(x, words, censors))
-  }
+  // } else if (typeof __w__ === "object" && Array.isArray(__w__)) {
+  //   return __w__.map(x => getCensorOutput(x, words, censors))
+  // }
 }
 
 export default Scan;

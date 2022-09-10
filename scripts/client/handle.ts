@@ -1,6 +1,6 @@
 import Swal from './modal'
 
-export default async function Post(url: string, body: object): (object | boolean) {
+export default async function Post(url: string, body: object): Promise<any> {
   let res = await fetch(url, {
     method: "POST",
     headers: {
@@ -19,4 +19,10 @@ export default async function Post(url: string, body: object): (object | boolean
     })
     return false;
   }
+}
+
+export interface DataResponse {
+  success: boolean;
+  message: string;
+  remove: boolean | null;
 }
